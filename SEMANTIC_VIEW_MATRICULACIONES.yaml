@@ -1,0 +1,233 @@
+name: SEMANTIC_VIEW_MATRICULACIONES
+description: Vista semántica de matriculaciones de vehiculos con datos de la DGT.
+tables:
+  - name: MATRICULACIONES_VEHICULOS
+    description: This table stores information about vehicle registrations, including details about the vehicle, its characteristics, and the registration process. It captures data such as the registration date, vehicle make and model, engine specifications, weight, and seating capacity, as well as information about the owner, including whether they are a private individual or a company, and the location of the registration.
+    base_table:
+      database: DEMO_VENTA_VEHICULOS
+      schema: CURATED
+      table: MATRICULACIONES_VEHICULOS
+    dimensions:
+      - name: CATEGORIA_VEHICULO_ELECTRICO
+        description: Type of electric vehicle, indicating whether it is a battery electric vehicle, a hybrid electric vehicle, or a plug-in hybrid electric vehicle.
+        expr: CATEGORIA_VEHICULO_ELECTRICO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Eléctrico de batería
+          - Eléctrico híbrido
+          - Eléctrico enchufable
+      - name: CLASE_MATRICULA
+        description: Type of vehicle registration, indicating that the vehicle is registered under standard or regular conditions, as opposed to other types such as diplomatic, temporary, or special registrations.
+        expr: CLASE_MATRICULA
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Ordinaria
+      - name: CODIGO_POSTAL
+        description: Postal code of the vehicle's registration location.
+        expr: CODIGO_POSTAL
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - '28022'
+          - '16220'
+          - '28915'
+      - name: MARCA
+        description: The brand or make of the vehicle.
+        expr: MARCA
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - VOLKSWAGEN
+          - OPEL
+          - TOYOTA
+      - name: MODELO
+        description: Model of the vehicle.
+        expr: MODELO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - GLA 200 D
+          - G2
+          - 500X
+      - name: MUNICIPIO
+        description: Municipio where the vehicle is registered.
+        expr: MUNICIPIO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - ZARAGOZA
+          - ALAQUAS
+          - VINALESA
+      - name: PROCEDENCIA_VEHICULO
+        description: Origin of the vehicle, indicating whether it was imported from the European Union, manufactured domestically, or imported from a non-EU country.
+        expr: PROCEDENCIA_VEHICULO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Importacion UE
+          - Fabricacion nacional
+          - Importacion no comunitaria
+      - name: PROVINCIA_MATRICULACION
+        description: Province where the vehicle was registered.
+        expr: PROVINCIA_MATRICULACION
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Araba/Álava
+          - Huelva
+          - Palencia
+      - name: RENTING
+        description: Indicates whether the vehicle is rented or owned by the individual.
+        expr: RENTING
+        data_type: BOOLEAN
+        sample_values:
+          - 'TRUE'
+          - 'FALSE'
+      - name: TIPO_PROPULSION
+        description: Type of propulsion or fuel source of the vehicle, indicating whether it is powered by Liquefied Petroleum Gas, Liquefied Natural Gas, or Electricity.
+        expr: TIPO_PROPULSION
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Gas Licuado de Petróleo
+          - Gas Natural Licuado
+          - Eléctrico
+      - name: TIPO_SERVICIO
+        description: Type of public transportation service, indicating whether the vehicle is used for public transportation, rental without a driver, or taxi services.
+        expr: TIPO_SERVICIO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Público PUBL-Alquiler sin conductor
+          - Público PUBL-Taxi
+      - name: TIPO_VEHICULO
+        description: Type of vehicle registered.
+        expr: TIPO_VEHICULO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - TURISMO
+          - CAMIÓN FURGÓN
+          - MOTOCICLETA DE 2 RUEDAS SIN SIDECAR
+    time_dimensions:
+      - name: FECHA_DE_MATRICULACION
+        description: Date on which the vehicle was registered.
+        expr: FECHA_DE_MATRICULACION
+        data_type: DATE
+        sample_values:
+          - '2022-08-25'
+          - '2024-11-18'
+          - '2016-02-26'
+    metrics:
+      - name: matriculaciones
+        synonyms:
+          - matriculaciones
+          - vehiculos
+          - vehiculos matriculados
+        description: Numero de vehiculos que se han matriculado
+        expr: COUNT(*)
+verified_queries:
+  - name: ¿Cuantos vehiculos de nissan se han matriculado semanalmente en primavera de 2025?
+    question: ¿Cuantos vehiculos de nissan se han matriculado semanalmente en primavera de 2025?
+    sql: |-
+      WITH weekly_registrations AS (
+        SELECT
+          DATE_TRUNC('WEEK', fecha_de_matriculacion) AS week,
+          COUNT(*) AS weekly_matriculaciones
+        FROM
+          matriculaciones_vehiculos
+        WHERE
+          UPPER(marca) = 'NISSAN'
+        GROUP BY
+          DATE_TRUNC('WEEK', fecha_de_matriculacion)
+      )
+      SELECT
+        week,
+        weekly_matriculaciones
+      FROM
+        weekly_registrations
+      WHERE
+        week >= '2025-03-01'
+        AND week < '2025-06-01'
+      ORDER BY
+        week DESC NULLS LAST
+    use_as_onboarding_question: true
+    verified_by: Pablo Saenz de Tejada
+    verified_at: 1761308065
+  - name: Como ha evolucionado la matriculacion de turismos por categoria de vehiculo electrico entre 2020 y 2025 mes a mes?
+    question: Como ha evolucionado la matriculacion de turismos por categoria de vehiculo electrico entre 2020 y 2025 mes a mes?
+    sql: |-
+      SELECT
+        DATE_TRUNC('MONTH', fecha_de_matriculacion) AS month,
+        categoria_vehiculo_electrico,
+        COUNT(*) AS monthly_matriculaciones
+      FROM
+        matriculaciones_vehiculos
+      WHERE
+        tipo_vehiculo = 'TURISMO'
+        AND NOT categoria_vehiculo_electrico IS NULL
+        AND DATE_PART('YEAR', fecha_de_matriculacion) BETWEEN 2020
+        AND 2025
+      GROUP BY
+        DATE_TRUNC('MONTH', fecha_de_matriculacion),
+        categoria_vehiculo_electrico
+      ORDER BY
+        month DESC NULLS LAST,
+        categoria_vehiculo_electrico
+    use_as_onboarding_question: true
+    verified_by: Pablo Saenz de Tejada
+    verified_at: 1761308167
+  - name: Cuales son los 10 modelos de turismos diesel más matriculados en 2025?
+    question: Cuales son los 10 modelos de turismos diesel más matriculados en 2025?
+    sql: |-
+      SELECT
+        modelo,
+        COUNT(*) AS matriculaciones
+      FROM
+        matriculaciones_vehiculos
+      WHERE
+        tipo_vehiculo = 'TURISMO'
+        AND UPPER(tipo_propulsion) LIKE '%DIESEL%'
+        AND DATE_PART('YEAR', fecha_de_matriculacion) = 2025
+      GROUP BY
+        modelo
+      ORDER BY
+        matriculaciones DESC NULLS LAST
+      LIMIT
+        10
+    use_as_onboarding_question: true
+    verified_by: Pablo Saenz de Tejada
+    verified_at: 1761308288
+  - name: ¿Cómo han evolucionado las matriculaciones de motocicletas de 2 ruedas en Alicante entre 2015 y 2025 anualmente?
+    question: ¿Cómo han evolucionado las matriculaciones de motocicletas de 2 ruedas en Alicante entre 2015 y 2025 anualmente?
+    sql: |-
+      SELECT
+        DATE_PART('YEAR', fecha_de_matriculacion) AS year,
+        COUNT(*) AS annual_matriculaciones
+      FROM
+        matriculaciones_vehiculos
+      WHERE
+        tipo_vehiculo = 'MOTOCICLETA DE 2 RUEDAS SIN SIDECAR'
+        AND CONTAINS(UPPER(provincia_matriculacion), 'ALICANTE')
+        AND DATE_PART('YEAR', fecha_de_matriculacion) BETWEEN 2015
+        AND 2025
+      GROUP BY
+        DATE_PART('YEAR', fecha_de_matriculacion)
+      ORDER BY
+        year DESC NULLS LAST
+    use_as_onboarding_question: true
+    verified_by: Pablo Saenz de Tejada
+    verified_at: 1761308526
+  - name: Cuales son las 5 marcas mas matriculadas de grúas en el municipio de Madrid?
+    question: Cuales son las 5 marcas mas matriculadas de grúas en el municipio de Madrid?
+    sql: |-
+      SELECT
+        marca,
+        COUNT(*) AS matriculaciones
+      FROM
+        matriculaciones_vehiculos
+      WHERE
+        UPPER(tipo_vehiculo) LIKE '%GRÚA%'
+        AND UPPER(municipio) = 'MADRID'
+      GROUP BY
+        marca
+      ORDER BY
+        matriculaciones DESC NULLS LAST
+      LIMIT
+        5
+    use_as_onboarding_question: true
+    verified_by: Pablo Saenz de Tejada
+    verified_at: 1761308659
+module_custom_instructions:
+  sql_generation: Muchas columnas de texto están en mayúsculas. Cuando se pregunte por información sobre municipios, provincias, lugares, tipos de vehiculo u otras dimensiones, tratar de filtrar y realizar cláusulas WHERE convirtiendo el texto a mayúsculas para evitar errores.

@@ -1,0 +1,460 @@
+name: SEMANTIC_VIEW_CRM
+description: 'Vista semántica con información del CRM: Ventas, oportunidades, clientes, etc.'
+tables:
+  - name: CRM_CLIENTES
+    description: This table stores information about clients in a customer relationship management (CRM) system, including their unique identifier, name, email, age, credit score, phone number, and location.
+    base_table:
+      database: DEMO_VENTA_VEHICULOS
+      schema: CURATED
+      table: CRM_CLIENTES
+    dimensions:
+      - name: APELLIDOS
+        description: Client's last name.
+        expr: APELLIDOS
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Arias
+          - Arce
+          - Castaño
+      - name: CORREO_ELECTRONICO
+        description: Email address of the client.
+        expr: CORREO_ELECTRONICO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - eduardo.castaneda@vodafone.es
+          - yolanda.aguilar@correo.es
+          - diana.arias@hotmail.es
+      - name: ID_CLIENTE
+        description: Unique identifier for each client in the customer relationship management system.
+        expr: ID_CLIENTE
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - CUST-0525
+          - CUST-0447
+          - CUST-0374
+      - name: NOMBRE
+        description: 'Client Name: The name of the client, typically a first name, used to identify and personalize interactions with the customer.'
+        expr: NOMBRE
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Mónica
+          - María
+          - Gemma
+      - name: TELEFONO
+        description: The phone number associated with a client, formatted as a string in the format "+1-XXX-XXXX", where "XXX-XXXX" represents the area code and local phone number.
+        expr: TELEFONO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - +1-555-6904
+          - +1-555-1259
+          - +1-555-5375
+      - name: UBICACION
+        description: Location of the client, including city and province.
+        expr: UBICACION
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Soto del Real, Madrid
+          - Moraleja de Enmedio, Madrid
+          - Getafe, Madrid
+    facts:
+      - name: EDAD_CLIENTE
+        description: Age of the client.
+        expr: EDAD_CLIENTE
+        data_type: NUMBER(38,0)
+        sample_values:
+          - '22'
+          - '55'
+          - '47'
+      - name: PUNTUACION_CREDITO
+        description: Credit score assigned to the client, indicating their creditworthiness, with higher values representing a better credit history.
+        expr: PUNTUACION_CREDITO
+        data_type: NUMBER(38,0)
+        sample_values:
+          - '774'
+          - '689'
+          - '600'
+    primary_key:
+      columns:
+        - ID_CLIENTE
+  - name: CRM_OPORTUNIDADES_ENRIQUECIDA
+    description: This table stores information about sales opportunities in a customer relationship management (CRM) system, including details about the client, product, sales stage, probability of closing, and expected revenue, as well as notes and next steps for the sales team to follow up on the opportunity.
+    base_table:
+      database: DEMO_VENTA_VEHICULOS
+      schema: CURATED
+      table: CRM_OPORTUNIDADES_ENRIQUECIDA
+    dimensions:
+      - name: CARACTERISTICAS_CLAVE
+        description: Key characteristics or features that are important to the customer in their purchasing decision, such as product attributes, benefits, or unique selling points.
+        expr: CARACTERISTICAS_CLAVE
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - '["Garantía","Seguridad","Tecnología"]'
+          - '["Comodidad","Precio","Versatilidad"]'
+          - '["Eléctrico","Precio","Rendimiento"]'
+      - name: COTIZACION_ENVIADA
+        description: Indicates whether a quote has been sent to the customer for the opportunity.
+        expr: COTIZACION_ENVIADA
+        data_type: BOOLEAN
+        sample_values:
+          - 'FALSE'
+          - 'TRUE'
+      - name: ETAPA
+        description: 'Sales opportunity stage, indicating the current point in the sales process, which can be one of the following: Calificado (Qualified), Propuesta (Proposal), or Negociación (Negotiation).'
+        expr: ETAPA
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Calificado
+          - Propuesta
+          - Negociación
+      - name: ID_CLIENTE
+        description: Unique identifier of the client associated with the sales opportunity.
+        expr: ID_CLIENTE
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - CUST-0525
+          - CUST-0447
+          - CUST-0374
+      - name: ID_OPORTUNIDAD
+        description: Unique identifier for each sales opportunity.
+        expr: ID_OPORTUNIDAD
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - OPP-0054
+          - OPP-0177
+          - OPP-0001
+      - name: ID_PRODUCTO
+        description: Unique identifier for the product associated with the sales opportunity.
+        expr: ID_PRODUCTO
+        data_type: VARCHAR(16777216)
+      - name: NOTAS_SEGUIMIENTO
+        description: This column stores notes and updates from sales interactions with potential customers, including their interests, concerns, and next steps in the purchasing process, providing valuable insights for sales teams to tailor their approach and close deals.
+        expr: NOTAS_SEGUIMIENTO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - |-
+            Nota de seguimiento - Valentín Reyes (Subaru Legacy):
+
+            *Última interacción:* Valentín mostró entusiasmo por el Legacy, destacando su espacio y seguridad. Preguntó sobre financiación y garantía extendida.
+
+            *Preocupaciones:* Le preocupa el coste de mantenimiento a largo plazo. Le aseguré que los costes son competitivos y le envié un desglose detallado.
+
+            *Próximos pasos:* Acordamos programar cita de servicio para revisión técnica y ajustar opciones de financiación. Le recordaré mañana para confirmar disponibilidad.
+
+            *Estado:* Motivado, pero necesita claridad en costes. Confianza en el proceso.
+          - |-
+            Nota de seguimiento - Julián Aparicio (Mazda6):
+
+            Julián quedó muy satisfecho con la prueba de manejo del Mazda6, destacando su confort y equipamiento. Mostró interés en opciones de financiación, pero quiere comparar precios antes de decidir. Acordamos revisar cotizaciones en su segunda visita el 2/12/2025. Está motivado, pero prudente con el presupuesto. Pendiente: enviar cotización detallada con promociones vigentes.
+
+            ---
+            Nota de seguimiento - Julián Aparicio (Mazda6):
+
+            Julián valoró el espacio y seguridad del Mazda6, pero expresó dudas sobre el precio frente a competidores. Le expliqué las ventajas de nuestro paquete de garantía extendida. Quedó en revisar la cotización que le enviaré hoy. Motivación media-alta; necesita claridad en costes totales. Pr
+          - |-
+            Nota de Seguimiento 1:
+            Vanesa mostró gran entusiasmo por el Acura RDX tras la prueba de manejo, destacando su confort y tecnología. Comentó preocupación por el precio, pero valoró la relación calidad-precio. Acordamos revisar opciones de financiación. Motivada, pero espera confirmar presupuesto. Próximo paso: enviar cotización detallada y agendar visita para revisión financiera.
+
+            Nota de Seguimiento 2:
+            Vanesa confirmó interés en el RDX, pero prefiere esperar a la próxima promoción. Le expliqué los beneficios de adquirir ahora (evitar subidas de precio). Mostró curiosidad por el mantenimiento. Acordamos programar primer servicio en noviembre y enviar cotización. Estado: optimista, pero cautelosa con el timing.
+
+            Nota de Seguimiento 3:
+            Vanesa valoró la prueba de manejo, pero su pareja aún duda por el presupuesto. Le envié
+      - name: ORIGEN_OPORTUNIDAD
+        description: The source or origin of the sales opportunity, indicating how the customer or prospect initially became aware of the product or service.
+        expr: ORIGEN_OPORTUNIDAD
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Anuncio Radio
+          - Anuncios Facebook
+          - Consulta Telefónica
+      - name: PROXIMOS_PASOS
+        description: This column stores the next steps or actions that need to be taken for each sales opportunity, including the specific tasks, deadlines, and objectives to move the opportunity forward in the sales process.
+        expr: PROXIMOS_PASOS
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - 'Próximo paso: Contactar a Asunción Castaño antes del 15/12/2024 para agendar la prueba de manejo del Subaru Crosstrek y confirmar disponibilidad de documentos legales. Objetivo: Asegurar visita al concesionario y avanzar hacia la decisión final antes del 20/12/2025.'
+          - 'Próximo paso: Contactar a Celia Domínguez hoy para agendar una prueba de manejo del Ford Explorer (Sedán) antes del 15/12/24, enviarle cotización detallada y confirmar disponibilidad de vehículos en su presupuesto ($393-$655/mes). Objetivo: Avanzar a etapa "Interesado" antes del 20/12/24.'
+          - 'Próximo paso: Contactar a Julián Morales antes del 15/11/24 para agendar prueba de manejo del BMW X1 y enviar cotización personalizada con opciones de financiación, asegurando seguimiento semanal hasta la decisión final.'
+      - name: PRUEBA_PENDIENTE
+        description: Indicates whether an opportunity is pending a test or proof of concept before moving forward.
+        expr: PRUEBA_PENDIENTE
+        data_type: BOOLEAN
+        sample_values:
+          - 'FALSE'
+          - 'TRUE'
+      - name: REPRESENTANTE_VENTAS
+        synonyms:
+          - comerciales
+          - vendedores
+        description: The sales representative assigned to the opportunity.
+        expr: REPRESENTANTE_VENTAS
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Beatriz Guerrero Ortega
+          - Lucía Ramírez Silva
+          - María García López
+      - name: RESUMEN_OPORTUNIDAD
+        description: This column contains detailed summaries of sales opportunities for various car models, including customer profiles, preferences, budgets, credit scores, and current vehicle information, as well as the next steps to be taken by the sales team to close the deal, along with the probability of a successful sale.
+        expr: RESUMEN_OPORTUNIDAD
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - |-
+            Resumen de Oportunidad de Venta – Diana Gallardo
+
+            Diana Gallardo, de 70 años y residente en Palma, busca un BMW 3 Series Sedán de Lujo con tracción integral, altura libre al suelo y capacidad invernal, priorizando comodidad y seguridad. Atraída por el prestigio de la marca y su tecnología, valora la versatilidad del modelo para su estilo de vida. Con un presupuesto de €75,000-€110,000 y una puntuación crediticia sólida (766), puede financiar la compra o optar por un plan flexible. Su Lexus NX 2017 sugiere experiencia en vehículos premium, pero busca mayor lujo y prestaciones. La próxima acción clave es presentar opciones de financiación adaptadas y agendar una prueba de conducción para reforzar su interés. Probabilidad de cierre: 65%.
+          - |-
+            Resumen de Oportunidad de Venta – Isabel Calvo
+
+            Isabel Calvo, de 21 años y residente en Dos Hermanas (Sevilla), busca alquilar un Mazda CX-5 por su rendimiento, estilo y sistema de sonido, alineado con su perfil joven y dinámico. Su presupuesto mensual ($443-$739) y puntuación crediticia (685) permiten opciones flexibles, aunque su actual Chevrolet Equinox 2020 sugiere una preferencia por SUVs compactos. Factores clave: diseño moderno, tecnología y relación calidad-precio. Con una probabilidad del 44%, el siguiente paso es presentar planes de alquiler adaptados a su presupuesto, destacando las ventajas del CX-5 frente a su vehículo actual, y agendar una prueba de conducción para reforzar su interés.
+          - |-
+            Resumen de Oportunidad de Venta – Kia Soul (Sedán)
+
+            Vanesa Vargas, de 40 años y residente en Leganés, busca un Kia Soul por su equilibrio entre rendimiento, estilo y sistema de sonido, alineado con sus prioridades. Su presupuesto ($22,581–$33,872) y compra al contado reflejan solvencia, aunque su puntuación crediticia (633) sugiere cautela en financiación. El vehículo de entrega (Porsche Taycan 2016) indica preferencia por modelos con tecnología y diseño premium. Factores clave: relación calidad-precio y experiencia de compra ágil. Próximo paso: Agendar visita al concesionario para prueba de conducción y negociación final, destacando las ventajas del Kia Soul frente a opciones similares. Probabilidad de cierre: 56%.
+      - name: TIPO_FINANCIACION
+        description: Type of financing used for the opportunity, indicating whether it was financed through a dealership, leasing, or bank loan.
+        expr: TIPO_FINANCIACION
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Financiación Concesionario
+          - Arrendamiento
+          - Préstamo Bancario
+      - name: TIPO_VENTA
+        description: Type of sales opportunity, indicating whether it is a certified pre-owned sale, a flexible purchase, or a standard purchase.
+        expr: TIPO_VENTA
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Seminuevo Certificado
+          - Compra Flexible
+          - Compra
+      - name: VEHICULO_ENTREGA
+        description: Vehicle model delivered to the customer.
+        expr: VEHICULO_ENTREGA
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - 2015 Volvo XC90
+          - 2016 Ram 2500
+          - 2016 Land Rover Defender
+    time_dimensions:
+      - name: FECHA_CREACION
+        description: Date when the sales opportunity was created.
+        expr: FECHA_CREACION
+        data_type: DATE
+        sample_values:
+          - '2025-06-17'
+          - '2025-06-28'
+          - '2025-05-24'
+      - name: FECHA_DECISION_ESPERADA
+        description: Date by which a decision is expected to be made regarding the sales opportunity.
+        expr: FECHA_DECISION_ESPERADA
+        data_type: DATE
+        sample_values:
+          - '2025-12-21'
+          - '2025-10-25'
+          - '2025-12-23'
+    facts:
+      - name: PROBABILIDAD
+        description: Probability of closing a sales opportunity, represented as a percentage.
+        expr: PROBABILIDAD
+        data_type: NUMBER(38,0)
+        sample_values:
+          - '45'
+          - '36'
+          - '42'
+      - name: VALOR_ESTIMADO
+        description: Estimated value of the sales opportunity.
+        expr: VALOR_ESTIMADO
+        data_type: NUMBER(38,0)
+        sample_values:
+          - '80948'
+          - '55955'
+          - '91123'
+    primary_key:
+      columns:
+        - ID_OPORTUNIDAD
+  - name: CRM_TAREAS
+    description: This table stores information about tasks (tareas) related to customer relationship management (CRM). It captures details such as task ID, associated client and opportunity IDs, task status, due date, and a brief description of the task itself.
+    base_table:
+      database: DEMO_VENTA_VEHICULOS
+      schema: CURATED
+      table: CRM_TAREAS
+    dimensions:
+      - name: ESTADO
+        description: Current status of the task, indicating whether it is pending to be started or completed.
+        expr: ESTADO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Pendiente
+      - name: ID_CLIENTE
+        description: Unique identifier for the client associated with the task.
+        expr: ID_CLIENTE
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - CUST-0525
+          - CUST-0447
+          - CUST-0374
+      - name: ID_OPORTUNIDAD
+        description: Unique identifier for a sales opportunity.
+        expr: ID_OPORTUNIDAD
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - OPP-0054
+          - OPP-0177
+          - OPP-0001
+      - name: ID_TAREA
+        description: Unique identifier for a task in the CRM system.
+        expr: ID_TAREA
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - TASK-0487
+          - TASK-0431
+          - TASK-0991
+      - name: TAREA
+        description: Task or activity to be performed in the customer relationship management process.
+        expr: TAREA
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Programar prueba de manejo
+          - Programar inspección final
+          - Enviar documentos legales
+    time_dimensions:
+      - name: FECHA_TAREA
+        description: Date on which the task is scheduled or was completed.
+        expr: FECHA_TAREA
+        data_type: DATE
+        sample_values:
+          - '2025-11-17'
+          - '2025-10-18'
+          - '2025-12-18'
+    primary_key:
+      columns:
+        - ID_TAREA
+  - name: CRM_VEHICULOS
+    description: This table stores information about vehicles, with each record representing a unique vehicle product. The table captures key attributes of the vehicle, including its brand, model, and type, and is uniquely identified by a product ID.
+    base_table:
+      database: DEMO_VENTA_VEHICULOS
+      schema: CURATED
+      table: CRM_VEHICULOS
+    dimensions:
+      - name: ID_PRODUCTO
+        description: Unique identifier for a product in the vehicle catalog.
+        expr: ID_PRODUCTO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - PROD-0737
+          - PROD-0388
+          - PROD-0767
+      - name: MARCA_VEHICULO
+        description: The brand or make of the vehicle.
+        expr: MARCA_VEHICULO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Ram
+          - Mazda
+          - Subaru
+      - name: MODELO_VEHICULO
+        description: Model of the vehicle.
+        expr: MODELO_VEHICULO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - CX-30
+          - Highlander
+          - Cherokee
+      - name: TIPO_VEHICULO
+        description: 'Type of vehicle, categorizing the vehicle into one of three categories: Camioneta (SUV/Truck), Sedán (Sedan), or Sedán de Lujo (Luxury Sedan), to differentiate between various vehicle types in the CRM system.'
+        expr: TIPO_VEHICULO
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Camioneta
+          - Sedán
+          - Sedán de Lujo
+    primary_key:
+      columns:
+        - ID_PRODUCTO
+relationships:
+  - left_table: CRM_OPORTUNIDADES_ENRIQUECIDA
+    relationship_columns:
+      - left_column: ID_CLIENTE
+        right_column: ID_CLIENTE
+    right_table: CRM_CLIENTES
+    name: opportunidad_a_cliente
+  - left_table: CRM_TAREAS
+    relationship_columns:
+      - left_column: ID_OPORTUNIDAD
+        right_column: ID_OPORTUNIDAD
+    right_table: CRM_OPORTUNIDADES_ENRIQUECIDA
+    name: tareas_a_oportunidades
+  - left_table: CRM_OPORTUNIDADES_ENRIQUECIDA
+    relationship_columns:
+      - left_column: ID_PRODUCTO
+        right_column: ID_PRODUCTO
+    right_table: CRM_VEHICULOS
+    name: oportunidades_a_producto
+  - left_table: CRM_TAREAS
+    relationship_columns:
+      - left_column: ID_CLIENTE
+        right_column: ID_CLIENTE
+    right_table: CRM_CLIENTES
+    name: tareas_a_clientes
+verified_queries:
+  - name: ¿Que comerciales tienen más oportunidades abiertas en octubre de 2025?
+    question: ¿Que comerciales tienen más oportunidades abiertas en octubre de 2025?
+    sql: |-
+      SELECT
+        representante_ventas,
+        COUNT(id_oportunidad) AS num_oportunidades
+      FROM
+        crm_oportunidades_enriquecida
+      WHERE
+        DATE_TRUNC('MONTH', fecha_creacion) = '2025-10-01'
+      GROUP BY
+        representante_ventas
+      ORDER BY
+        num_oportunidades DESC NULLS LAST
+    use_as_onboarding_question: true
+    verified_by: Pablo Saenz de Tejada
+    verified_at: 1761309197
+  - name: Cuales son las 10 oportunidades más grandes para cerrar en los próximos 3 meses?
+    question: Cuales son las 10 oportunidades más grandes para cerrar en los próximos 3 meses?
+    sql: |-
+      SELECT
+        id_oportunidad,
+        valor_estimado,
+        fecha_decision_esperada,
+        etapa,
+        probabilidad
+      FROM
+        crm_oportunidades_enriquecida
+      WHERE
+        fecha_decision_esperada BETWEEN CURRENT_DATE
+        AND DATEADD(MONTH, 3, CURRENT_DATE)
+      ORDER BY
+        valor_estimado DESC NULLS LAST
+      LIMIT
+        10
+    use_as_onboarding_question: true
+    verified_by: Pablo Saenz de Tejada
+    verified_at: 1761309286
+  - name: Dame los detalles de la oportunidad actualmente abierta más grande de la comercial Elena Moreno
+    question: Dame los detalles de la oportunidad actualmente abierta más grande de la comercial Elena Moreno
+    sql: |-
+      SELECT
+        id_oportunidad,
+        valor_estimado,
+        fecha_decision_esperada,
+        etapa,
+        probabilidad,
+        representante_ventas
+      FROM
+        crm_oportunidades_enriquecida
+      WHERE
+        representante_ventas LIKE '%Elena%'
+        AND representante_ventas LIKE '%Moreno%'
+      ORDER BY
+        valor_estimado DESC NULLS LAST
+      LIMIT
+        1
+    use_as_onboarding_question: true
+    verified_by: Pablo Saenz de Tejada
+    verified_at: 1761309641
+module_custom_instructions:
+  sql_generation: Cuando se pregunte por los datos de una persona concreta o un comercial concreto, combinar el nombre y el apellido en la búsqueda teniendo en cuenta que posiblemente el apellido que indique el usuario en la búsqueda no sea el apellido completo del comercial de ventas.
